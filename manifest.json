@@ -1,0 +1,26 @@
+{
+  "name": "Shelf Kart",
+  "short_name": "Shelf Kart",
+  "description": "Smart way to order!",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#4285F4",
+  "theme_color": "#4285F4",
+  "icons": [
+    {
+      "src": "icons/CART.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/CART-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en"
+}
