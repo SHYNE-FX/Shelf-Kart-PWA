@@ -63,7 +63,7 @@ function parseTxtLog(txt,filename){
       if(sepCount===2&&!headerDone)continue;
       if(headerDone){
         // Category line: "A. Category Name"
-        const catMatch=l.match(/^[A-Z\d]+\.\s+(.+)$/);
+        const catMatch=l.match(/^[A-Z]\.\s+(.+)$/);
         if(catMatch){currentCat=catMatch[1];catIndex++;continue;}
         // Item line: "1. Item Name — qty unit"
         const itemMatch=l.match(/^(\d+)\.\s+(.+?)(?:\s+[—–-]\s+(.+))?$/);
