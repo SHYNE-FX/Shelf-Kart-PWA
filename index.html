@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Shelf Kart - V3.1.0</title>
+<meta name="description" content="Smart way to order!">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shelf Kart">
+<meta name="theme-color" id="meta-theme-color" content="#4285F4">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/CART.svg">
+
+<!-- Splash must load first to avoid FOUC -->
+<link rel="stylesheet" href="css/splash.css">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Comfortaa:wght@400;700&family=Playfair+Display:wght@400;600;700&family=Roboto+Slab:wght@400;600;700&family=Lora:wght@400;600&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+<!-- PWA SPLASH SCREEN -->
+<div id="pwa-splash">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="#fff">
+    <path d="M213-117.21q-21-21.21-21-51T213.21-219q21.21-21 51-21T315-218.79q21 21.21 21 51T314.79-117q-21.21 21-51 21T213-117.21Zm432 0q-21-21.21-21-51T645.21-219q21.21-21 51-21T747-218.79q21 21.21 21 51T746.79-117q-21.21 21-51 21T645-117.21ZM222-768h570q14 0 20.5 11t1.5 23L702.63-476.14Q694-456 676.5-444T637-432H317l-42 72h493v72H276q-43 0-63.5-36.15-20.5-36.16.5-71.85l52-90-131-306H48v-72h133l41 96Z"/>
+  </svg>
+  <div id="pwa-splash-name">Shelf Kart</div>
+  <div id="pwa-splash-tag">Smart way to order!!!</div>
+</div>
+
+<!-- CRITICAL: Apply saved accent to splash before full init; dismiss after load -->
+<script>
+(function(){
+  try{
+    var raw=localStorage.getItem('kart_v1');
+    if(raw){var d=JSON.parse(raw);var c=d.settings&&d.settings.accent;
+      if(c){document.getElementById('pwa-splash').style.background=c;
+            document.getElementById('meta-theme-color').setAttribute('content',c);}
+    }
+  }catch(e){}
+  window.addEventListener('load',function(){
+    setTimeout(function(){
+      var s=document.getElementById('pwa-splash');
+      s.classList.add('hide');
+      setTimeout(function(){s.remove()},650);
+    },900);
+  });
+})();
+</script>
+
+<header id="hdr">
+  <div class="logo">
+    <span class="icon fill lg">shopping_cart</span>
+    <span class="logo-name">Shelf Kart</span>
+  </div>
+  <span class="hdr-tagline">Smart way to order!!!</span>
+</header>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HOME -->
+  <section id="scr-home" class="scr on">
+    <div class="cal-wrap">
+      <div class="cal-hdr">
+        <button class="cal-today">Today</button>
+        <select id="cal-ms" class="cal-sel"></select>
+        <select id="cal-ys" class="cal-sel"></select>
+        <div class="cal-nav">
+          <button class="cal-nb"><span class="icon sm">chevron_left</span></button>
+          <button class="cal-nb"><span class="icon sm">chevron_right</span></button>
+        </div>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-dhdr">
+          <div class="cal-dh">Mon</div><div class="cal-dh">Tue</div><div class="cal-dh">Wed</div>
+          <div class="cal-dh">Thu</div><div class="cal-dh">Fri</div>
+          <div class="cal-dh sat">Sat</div><div class="cal-dh sun">Sun</div>
+        </div>
+        <div id="cal-days" class="cal-days"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH -->
+  <section id="scr-search" class="scr">
+    <div class="srch-wrap">
+      <div class="srch-iw">
+        <span class="icon sm srch-ico">search</span>
+        <input type="search" id="srch-in" class="srch-input" placeholder="Search categories, items, orders…" autocomplete="off">
+      </div>
+      <div id="srch-res"></div>
+    </div>
+  </section>
+
+  <!-- LOG -->
+  <section id="scr-log" class="scr">
+    <div id="log-list" class="log-list"></div>
+  </section>
+
+  <!-- LOG UPLOAD BAR -->
+  <div id="log-upload-bar">
+    <span id="log-upload-label">Upload Logs</span>
+    <button id="log-upload-btn" onclick="triggerLogUpload()" aria-label="Upload log file">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    </button>
+  </div>
+  <input type="file" id="log-upload-input" accept=".txt" multiple style="display:none" onchange="handleLogUpload(this)">
+
+  <!-- SETTINGS -->
+  <section id="scr-settings" class="scr">
+    <div class="slist">
+
+      <div class="ssec">
+        <div class="ssec-ttl">Appearance</div>
+        <div class="srow col">
+          <div class="srow-top">
+            <span class="icon s-ico">dark_mode</span>
+            <div class="s-info"><div class="s-lbl">Theme</div></div>
+          </div>
+          <div class="theme-seg" id="theme-seg">
+            <button class="tseg-btn" data-t="light"><span class="icon sm">light_mode</span>Light</button>
+            <button class="tseg-btn" data-t="system"><span class="icon sm">brightness_auto</span>System</button>
+            <button class="tseg-btn" data-t="dark"><span class="icon sm">dark_mode</span>Dark</button>
+          </div>
+        </div>
+        <div class="srow col">
+          <div class="srow-top">
+            <span class="icon s-ico">colors</span>
+            <div class="s-info"><div class="s-lbl">Accent Color</div></div>
+          </div>
+          <div class="swatches" id="swatches">
+            <div class="swatch on" data-c="#4285F4" style="background:#4285F4"></div>
+            <div class="swatch" data-c="#EA4335" style="background:#EA4335"></div>
+            <div class="swatch" data-c="#34A853" style="background:#34A853"></div>
+            <div class="swatch" data-c="#9C27B0" style="background:#9C27B0"></div>
+            <div class="swatch" data-c="#FF6D00" style="background:#FF6D00"></div>
+            <div class="swatch" data-c="#00ACC1" style="background:#00ACC1"></div>
+            <div class="swatch" data-c="#E91E63" style="background:#E91E63"></div>
+            <div class="swatch" data-c="#607D8B" style="background:#607D8B"></div>
+          </div>
+          <div class="cp-row">
+            <span class="cp-lbl">Custom</span>
+            <input type="color" id="cp" value="#4285F4">
+          </div>
+        </div>
+      </div>
+
+      <div class="ssec">
+        <div class="ssec-ttl">Typography</div>
+        <div class="srow">
+          <span class="icon s-ico">font_download</span>
+          <div class="s-info"><div class="s-lbl">Font Family</div></div>
+          <div class="s-ctrl">
+            <select class="ssel" id="font-sel">
+              <option value="'Google Sans',sans-serif">Google Sans</option>
+              <option value="'Poppins',sans-serif" selected>Poppins</option>
+              <option value="'Comfortaa',sans-serif">Comfortaa</option>
+              <option value="'Playfair Display',serif">Playfair Display</option>
+              <option value="'Roboto Slab',serif">Roboto Slab</option>
+              <option value="'Lora',serif">Lora</option>
+              <option value="'Kalam',cursive">Kalam</option>
+            </select>
+          </div>
+        </div>
+        <div class="srow">
+          <span class="icon s-ico">format_size</span>
+          <div class="s-info"><div class="s-lbl">Font Size</div></div>
+          <div class="s-ctrl">
+            <select class="ssel" id="fs-sel">
+              <option value="12">12px</option>
+              <option value="13">13px</option>
+              <option value="14">14px</option>
+              <option value="15">15px</option>
+              <option value="16" selected>16px</option>
+              <option value="17">17px</option>
+              <option value="18">18px</option>
+              <option value="20">20px</option>
+              <option value="22">22px</option>
+              <option value="24">24px</option>
+              <option value="26">26px</option>
+              <option value="28">28px</option>
+              <option value="32">32px</option>
+              <option value="36">36px</option>
+              <option value="40">40px</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="ssec">
+        <div class="ssec-ttl">Downloads</div>
+        <div class="srow col">
+          <div class="srow-top">
+            <span class="icon s-ico">download</span>
+            <div class="s-info"><div class="s-lbl">Default Format</div></div>
+          </div>
+          <div class="radios" id="dl-radios">
+            <div class="radio-opt on" data-m="text">Text</div>
+            <div class="radio-opt" data-m="pdf">PDF</div>
+            <div class="radio-opt" data-m="image">Image</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ssec">
+        <div class="ssec-ttl">About</div>
+        <div class="ver-row">
+          <div class="ver-row-left">
+            <span class="icon s-ico">info</span>
+            <div class="s-info"><div class="s-lbl">App Version</div></div>
+          </div>
+          <div class="ver-badge-wrap">
+            <div class="ver-badge">
+              <span class="icon">verified</span>
+              3.1.0
+            </div>
+            <div class="ver-tooltip">Version 3.1.0</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EDIT -->
+  <section id="scr-edit" class="scr">
+    <div class="etabs">
+      <div class="etab on" data-tab="categories">Edit Categories</div>
+      <div class="etab" data-tab="items">Edit Items</div>
+      <div class="etab" data-tab="qty-list">Edit Quantities</div>
+    </div>
+    <div id="ep-categories" class="epanel on">
+      <div class="e-add-row">
+        <input type="text" id="new-cat" class="einput" placeholder="New category name…">
+        <button class="eadd" id="btn-add-cat"><span class="icon sm">add</span></button>
+      </div>
+      <div id="ecats" class="elist"></div>
+    </div>
+    <div id="ep-items" class="epanel">
+      <select id="ecat-sel" class="ecat-sel"></select>
+      <div class="e-add-row">
+        <input type="text" id="new-item" class="einput" placeholder="New item name…">
+        <button class="eadd" id="btn-add-item"><span class="icon sm">add</span></button>
+      </div>
+      <div id="eitems" class="elist"></div>
+    </div>
+    <div id="ep-qty-list" class="epanel">
+      <div class="e-add-row">
+        <input type="text" id="new-qty" class="einput" placeholder="New quantity name…">
+        <button class="eadd" id="btn-add-qty"><span class="icon sm">add</span></button>
+      </div>
+      <div id="eqtys" class="elist"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FAB -->
+<button id="fab">
+  <span class="icon lg fill">add</span>
+</button>
+
+<!-- BOTTOM NAV -->
+<nav id="bnav">
+  <button class="nbtn on" data-s="home"><span class="icon">home</span></button>
+  <button class="nbtn" data-s="search"><span class="icon">search</span></button>
+  <button class="nbtn" data-s="log"><span class="icon">book_4</span></button>
+  <button class="nbtn" data-s="edit"><span class="icon">edit_square</span></button>
+  <button class="nbtn" data-s="settings"><span class="icon">settings</span></button>
+</nav>
+
+<!-- BACKDROPS -->
+<div id="bd-ord" class="bd"></div>
+<div id="bd-cfm" class="bd"></div>
+<div id="bd-qty" class="bd"></div>
+
+<!-- CREATE ORDER FULL-SCREEN PAGE -->
+<div id="sh-ord">
+  <div class="ord-pg-hdr">
+    <button class="eibtn" id="ord-back-btn">
+      <span class="icon">arrow_back</span>
+    </button>
+    <div class="ord-pg-title" id="sh-ord-ttl">New Order</div>
+    <button class="btn btn-ghost sm" id="ord-sort-btn">
+      <span class="icon sm">sort</span>
+    </button>
+    <button class="btn btn-ghost sm" id="ord-clear-btn">
+      <span class="icon sm">clear_all</span>
+    </button>
+  </div>
+  <div class="ord-srch-row">
+    <span class="icon sm ord-srch-ico">search</span>
+    <input type="search" id="ord-srch-in" class="ord-srch-input" placeholder="Filter items…" autocomplete="off">
+    <button class="ord-srch-clear" id="ord-srch-clr" aria-label="Clear search">
+      <span class="icon sm">close</span>
+    </button>
+  </div>
+  <div class="ord-pg-body">
+    <div id="ord-items"></div>
+  </div>
+  <div class="ord-pg-foot">
+    <button class="btn btn-ghost sm" id="ord-foot-back"><span class="icon sm">keyboard_backspace</span></button>
+    <button class="btn btn-primary sm" id="ord-foot-cart"><span class="icon sm">shopping_cart</span></button>
+  </div>
+</div>
+
+<!-- CONFIRM ORDER SHEET -->
+<div id="sh-cfm" class="sheet">
+  <div class="sh-handle"></div>
+  <div class="sh-title">Confirm Order</div>
+  <div class="sh-body">
+    <div class="fg">
+      <label class="flabel">Label <span class="flabel-note">(optional)</span></label>
+      <input type="text" id="o-label" class="finput" placeholder="e.g. Weekly Groceries">
+    </div>
+    <div class="fg">
+      <label class="flabel">Date</label>
+      <div class="date-sels">
+        <select id="o-day"></select>
+        <select id="o-month"></select>
+        <select id="o-year"></select>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="flabel">Time</label>
+      <div class="date-sels">
+        <select id="o-hour"></select>
+        <select id="o-min"></select>
+        <select id="o-ampm"></select>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="flabel">Note <span class="flabel-note">(optional)</span></label>
+      <textarea id="o-note" class="ftextarea" placeholder="Any notes for this order…"></textarea>
+    </div>
+    <div id="ord-summary" class="ord-summary"></div>
+  </div>
+  <div class="sh-foot">
+    <button class="btn btn-ghost sm" id="cfm-cancel-btn">Cancel</button>
+    <button class="btn btn-primary sm" id="cfm-save-btn">Save</button>
+  </div>
+</div>
+
+<!-- QTY SHEET -->
+<div id="sh-qty" class="sheet">
+  <div class="sh-handle"></div>
+  <div class="sh-title">Set Quantity</div>
+  <div class="sh-body">
+    <div class="qty-iname" id="qty-iname"></div>
+    <div class="qty-inputs">
+      <input type="number" id="qty-num" class="qty-num" min="0" step="0.1" placeholder="0">
+      <select id="qty-unit" class="qty-unit"></select>
+    </div>
+    <div class="qty-acts">
+      <button class="btn btn-primary" id="qty-confirm-btn">
+        <span class="icon sm">check</span> Confirm
+      </button>
+      <button class="btn btn-danger" id="qty-delete-btn">
+        <span class="icon sm">delete</span> Remove Item
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXT MENU BACKDROP + MENU -->
+<div id="bd-ctx" class="bd"></div>
+<div id="ctx-menu" role="menu" aria-label="Quick navigation">
+  <button class="ctx-item" data-nav="home"><span class="icon sm">home</span>Home</button>
+  <button class="ctx-item" data-nav="search"><span class="icon sm">search</span>Search</button>
+  <button class="ctx-item" data-nav="log"><span class="icon sm">book_4</span>Log</button>
+  <button class="ctx-item" data-nav="settings"><span class="icon sm">settings</span>Settings</button>
+  <div class="ctx-divider"></div>
+  <button class="ctx-item" data-nav="edit"><span class="icon sm">edit_square</span>Edit</button>
+</div>
+
+<!-- SORT SHEET -->
+<div id="bd-sort" class="bd"></div>
+<div id="sh-sort" class="sheet">
+  <div class="sh-handle"></div>
+  <div class="sh-title">Sort Categories</div>
+  <div class="sh-body" id="sort-opts-wrap"></div>
+</div>
+
+<!-- ORDER DETAIL SHEET -->
+<div id="bd-ord-det" class="bd"></div>
+<div id="sh-ord-det" class="sheet">
+  <div class="sh-handle"></div>
+  <div class="sh-title" id="ord-det-title"></div>
+  <input type="hidden" id="det-ord-id" value="">
+  <div class="sh-body" id="ord-det-body"></div>
+  <div class="sh-foot">
+    <button class="btn btn-ghost sm" id="ord-det-close-btn">Close</button>
+    <button class="btn btn-primary sm" id="ord-det-edit-btn"><span class="icon sm">edit</span> Edit</button>
+  </div>
+</div>
+
+<!-- JS: load order matches dependency chain -->
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/order.js"></script>
+<script src="js/qty.js"></script>
+<script src="js/confirm.js"></script>
+<script src="js/log.js"></script>
+<script src="js/download.js"></script>
+<script src="js/search.js"></script>
+<script src="js/edit.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
