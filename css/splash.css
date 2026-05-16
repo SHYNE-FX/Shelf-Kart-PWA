@@ -1,5 +1,0 @@
-#pwa-splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .45s ease .15s;background:#4285F4}
-#pwa-splash.hide{opacity:0;pointer-events:none}
-#pwa-splash svg{width:96px;height:96px;filter:drop-shadow(0 6px 20px rgba(0,0,0,.28))}
-#pwa-splash-name{font-family:'Poppins',sans-serif;font-size:1.5rem;font-weight:700;color:#fff;letter-spacing:-.3px}
-#pwa-splash-tag{font-family:'Kalam',cursive;font-size:1rem;color:rgba(255,255,255,.82)}
