@@ -80,6 +80,7 @@ function parseTxtLog(txt,filename){
     return{id:'imp-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),date,label,time,note,items};
   }catch(err){return null;}
 }
+function renderLog(){
   const el=document.getElementById('log-list');
   if(!st.orders.length){
     el.innerHTML=`<div class="log-empty"><span class="icon xl" style="color:var(--border)">book_4</span><br>No orders yet.<br><span style="font-size:12px">Tap the calendar or + to create one.</span></div>`;
