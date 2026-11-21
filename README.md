@@ -1,66 +1,45 @@
-# Shelf Kart
+# Vault
 
-> Smart order management PWA for shelf-based inventory — v2.4.3
-
----
-
-## Overview
-
-Shelf Kart streamlines reorder workflows for retail, warehouse, or kitchen shelf stock. Build item lists by category, set quantities with units (kg, box, pcs), generate a printable PDF order sheet, and share or print it — all offline.
-
----
+An offline-first Progressive Web App for storing passwords, cards, and notes — encrypted entirely on your device.
 
 ## Features
 
-- **Item management** — Add items with name, quantity, unit (kg / box / pcs / custom), and category
-- **Category tabs** — Switch between categories instantly via tab navigation
-- **Order generation** — Compile selected items into a clean, printable order sheet
-- **PDF export** — Generate and download order as PDF
-- **Print support** — Direct print from browser
-- **Dark / Light theme** — Toggle between modes
-- **Font options** — Multiple font families (Poppins, Comfortaa, Playfair Display, Roboto Slab, Lora, Kalam)
-- **Offline-first** — Cache-first service worker; fonts cached on first load
-- **Installable** — Add to home screen on Android and iOS
+- **AES-256-GCM encryption** with a PBKDF2-derived key (210,000 iterations, SHA-256)
+- **No servers, no accounts, no tracking** — everything stays in the browser's IndexedDB
+- **Installable PWA** — works offline, add-to-home-screen support, auto-updates in place
+- **Biometric quick-unlock** via WebAuthn (Face ID / Touch ID / fingerprint), where supported
+- **Auto-lock** — locks after 600 s of inactivity, or 120 s after the app is minimised / backgrounded
+- **Cosmetics** — Light/Dark theme, custom accent colour, 7 Google Fonts, font size 8–48 px (saved on-device)
+- **CSV backup & restore** for portable, user-controlled backups
 
----
+## Getting started
 
-## Tech
+Vault is a static app — no build step, no dependencies.
 
-| Layer | Detail |
-|---|---|
-| Stack | Single-file HTML · Vanilla CSS · Vanilla JS |
-| Storage | `localStorage` |
-| Icons | Material Symbols Rounded (cached via SW) |
-| Fonts | Google Fonts — 6 families (cached via SW) |
-| PDF | Browser print / PDF generation |
-| Offline | Service Worker · Cache-first (v2.4.2 cache key) |
-| Install | Web App Manifest · PWA |
-| Categories | `productivity`, `utilities` |
+1. Serve the `vault/` folder over `http://` or `https://` (browsers block storage on `file://`).
+   ```bash
+   npx serve vault
+   ```
+2. Open it in your browser and create a master password.
+3. Optionally install it as an app using the **Install App** button or your browser's install prompt.
 
----
-
-## Getting Started
-
-```bash
-git clone https://github.com/yourusername/Shelf-Kart-PWA.git
-cd Shelf-Kart-PWA
-npx serve .
-```
-
-Serve over **HTTPS** or `localhost` for service worker and install prompt. Google Fonts and Material Symbols load on first visit and cache automatically — subsequent use is fully offline.
-
----
-
-## File Structure
+## Project structure
 
 ```
-Shelf-Kart-PWA/
-├── index.html                # Entire app
-├── manifest.json             # PWA manifest
-├── sw.js                     # Service worker (cache key: shelf-kart-v2.4.2)
-├── CART.svg                  # App icon
-└── icons/
-    ├── CART.svg              # Standard icon
-    ├── CART-maskable.svg     # Maskable icon
-    └── Home-Screen-Icon.svg  # Home screen icon
+vault/
+├── index.html      # App shell — markup, styles, and app logic all inlined
+├── sw.js           # Service worker: offline caching + update handling
+├── offline.html    # Fallback page shown on failed navigation with nothing cached
+├── manifest.json   # PWA manifest
+└── icons/          # App icons
 ```
+
+## Security notes
+
+- Your master password never leaves the device and is never stored — only a derived key is used to encrypt/decrypt your vault.
+- Losing your master password means losing access to your data; there is no recovery mechanism by design.
+- CSV backups are **unencrypted** — store them somewhere safe.
+
+## Browser support
+
+Requires a modern browser with support for the Web Crypto API, IndexedDB, and Service Workers (all current versions of Chrome, Edge, Firefox, and Safari). Biometric unlock requires WebAuthn platform authenticator support.
